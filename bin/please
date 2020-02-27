@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'bundler/setup'
+require 'panda_bot'
+
+def help
+  puts 'Pandabot :'
+  puts 'Name'
+  puts '     pandabot - Instruction to handle asana assle'
+  puts 'SYNOPSIS'
+  puts '     ./please.rb  [instruction] [version]'
+  puts '     ./please.rb create_release v3.14'
+  puts '           - Create Release patchnote, move all card in Asana from Staging to Release section'
+  puts '     ./please.rb deploy_in_production v3.14'
+  puts '           - moove all card in Asana from Release to Production section, warn team on slack #hivencyworldwide channel'
+end
+
+def end_script
+  puts ''
+  puts ''
+  puts "######################################################################################################################################################"
+  puts "######################################################################################################################################################"
+  puts "######################################################################################################################################################"
+  puts "######################################################################################################################################################"
+  exit
+end
+
+puts "######################################################################################################################################################"
+puts "###################################################################### PandaBot ######################################################################"
+puts "############################################################# Do what you dont wanna do ##############################################################"
+puts "######################################################################################################################################################"
+puts ''
+puts ''
+
+if ARGV.length < 1
+  puts 'Please instruct me what to do :)'
+  puts 'instructions : `./please.rb help`'
+  end_script
+end
+
+instruction = ARGV[0] # required
+version = ARGV[1] # optionel
+bot = PandaBot::Agent.new
+
+case instruction
+when 'create_release'
+  unless version
+    puts '-/! version is required.'
+    end_script
+  end
+  puts "--- Creating release #{version} ...."
+  bot.create_release version.to_s
+when 'deploy_in_production'
+  unless version
+    puts '-/! A version is required.'
+    end_script
+  end
+  puts "--- Deploying release #{version} in production...."
+  bot.deploy_in_production version.to_s
+when 'create_reporting'
+  puts "--- Generate reporting in `/reporting.txt` ..."
+  bot.create_reporting
+when 'help'
+  help
+else
+  puts "-/! Main instruction '#{instruction}' not supported."
+end
+
+end_script
