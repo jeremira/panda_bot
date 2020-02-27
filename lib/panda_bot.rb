@@ -15,11 +15,8 @@ module PandaBot
     SPRINT_PROJECT_GID = '1139348995392150' # sprint project gid
 
     def initialize
-      token = ENV.fetch('ASANA_API_TOKEN', nil)
-      raise 'Asana auth token not found' unless token
-
       @client = Asana::Client.new do |c|
-        c.authentication :access_token, token
+        c.authentication :access_token, '0/66c67dfebccaf0b87a0418ad4d6da549'
       end
     end
 
@@ -28,10 +25,14 @@ module PandaBot
     # Return PatchNote
     #
     def create_release(version)
+      puts '------ fetching staging tasks'
       staged_tasks = find_back_team_tasks_from_section(staging_section.gid)
+      puts '------ moving staging tasks'
       move_those tasks: staged_tasks, to: release_section
       # generate patch notes
+      puts '------ generate patch note'
       report = staged_tasks.map(&:name).sort.unshift("# Hivency #{version}").join("\n - ")
+      puts '------ noticing slack'
       slack_message_release(version, report)
     end
 
@@ -41,7 +42,7 @@ module PandaBot
     #
     def deploy_in_production(version)
       puts '------ fetching release tasks'
-      release_tasks = find_back_team_tasks_from_section(prod_section.gid)
+      release_tasks = find_back_team_tasks_from_section(release_section.gid)
       puts '------ moving release tasks'
       move_those tasks: release_tasks, to: prod_section
       puts '------ noticing slack'
@@ -54,9 +55,9 @@ module PandaBot
     # Kind of random shit when you tired or too busy to do this shit
     #
     def create_reporting
-      comings = find_back_team_tasks_from_section(todo_section.gid).first(rand(2..4)).map(&:name).join("\n")
-      doings  = find_back_team_tasks_from_section(staging_section.gid).first(rand(2..4)).map(&:name).join("\n")
-      dones   = find_back_team_tasks_from_section(release_section.gid).first(rand(2..4)).map(&:name).join("\n")
+      comings = find_back_team_tasks_from_section(todo_section.gid).first(rand(2..5)).map(&:name).join("\n")
+      doings  = find_back_team_tasks_from_section(staging_section.gid).first(rand(2..6)).map(&:name).join("\n")
+      dones   = find_back_team_tasks_from_section(release_section.gid).first(rand(2..5)).map(&:name).join("\n")
 
       File.write 'reporting.txt', ['Terminé', dones, 'En cours', doings, 'A venir', comings].join("\n")
     end
@@ -157,7 +158,6 @@ module PandaBot
     def teams
       client.teams.find_by_organization organization: WS_GID
     end
-
     def find_back_team_tasks_from_section(section_gid)
       # find all tasks in this peculiar section
       tasks = client.tasks.find_by_section(section: section_gid)
