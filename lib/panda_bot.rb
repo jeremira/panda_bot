@@ -15,8 +15,11 @@ module PandaBot
     SPRINT_PROJECT_GID = '1139348995392150' # sprint project gid
 
     def initialize
+      token = ENV.fetch('ASANA_API_TOKEN', nil)
+      raise 'Asana auth token not found' unless token
+
       @client = Asana::Client.new do |c|
-        c.authentication :access_token, ENV.fetch('ASANA_API_TOKEN', 'asana_api_token_not_set')
+        c.authentication :access_token, token
       end
     end
 
@@ -37,8 +40,11 @@ module PandaBot
     # Notify slack on #hivencyworlwide channel
     #
     def deploy_in_production(version)
+      puts '------ fetching release tasks'
       release_tasks = find_back_team_tasks_from_section(prod_section.gid)
+      puts '------ moving release tasks'
       move_those tasks: release_tasks, to: prod_section
+      puts '------ noticing slack'
       # Warn hivency on slack
       send_slack_notification(version)
     end
