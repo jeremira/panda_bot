@@ -200,11 +200,11 @@ module PandaBot
     # Fecth and return specfic section from Sprint project
 
     def to_groom_backlog
-      @backlog = ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'To groom' }
+      @backlog ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'To groom' }
     end
 
     def sprint_backlog
-      @backlog = ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'Sprint' }
+      @backlog ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'Sprint' }
     end
 
     def todo_section
