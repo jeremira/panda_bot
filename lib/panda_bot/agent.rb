@@ -22,7 +22,6 @@ module PandaBot
     def find_task(gid:)
       client.tasks.find_by_id gid
     rescue Asana::Errors::APIError => e
-      puts "Could not fetch Task with id-#{gid} : #{e.message}"
       OpenStruct.new(gid: gid)
     end
 
