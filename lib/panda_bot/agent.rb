@@ -1,21 +1,29 @@
 # frozen_string_literal: true
+
 require 'asana'
 require 'httparty'
 require 'time'
+require 'ostruct'
 
 module PandaBot
   class Agent
-    attr_reader :client, :new_tasks
-
-    WS_GID = '82576354686408' # main 'hivency' workspace gid
-    TEAM_GID = '759878389278245' # main 'hivency team' workspace gid
-    BACKLOG_PROJECT_GID = '1139062746771721' # backlog project gid
     SPRINT_PROJECT_GID = '1139348995392150' # sprint project gid
+    BACKLOG_PROJECT_GID = '1139062746771721' # backlog project gid
+    TEAM_GID = '759878389278245' # main 'hivency team' workspace gid
+    WS_GID = '82576354686408' # main 'hivency' workspace gid
+    attr_reader :client, :new_tasks
 
     def initialize
       @client = Asana::Client.new do |c|
         c.authentication :access_token, '0/66c67dfebccaf0b87a0418ad4d6da549'
       end
+    end
+
+    def find_task(gid:)
+      client.tasks.find_by_id gid
+    rescue Asana::Errors::APIError => e
+      puts "Could not fetch Task with id-#{gid} : #{e.message}"
+      OpenStruct.new(gid: gid)
     end
 
     def tag_uuid
@@ -40,7 +48,7 @@ module PandaBot
             ref_uuid = ref_uuid.gsub(/\d+/) do |match|
               match.to_i + 1
             end
-            task.update({custom_fields: { uuid_field_id => ref_uuid}})
+            task.update({ custom_fields: { uuid_field_id => ref_uuid } })
           end
 
           next unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
@@ -48,7 +56,7 @@ module PandaBot
           ref_uuid = ref_uuid.gsub(/\d+/) do |match|
             match.to_i + 1
           end
-          task.update({custom_fields: { uuid_field_id => ref_uuid}})
+          task.update({ custom_fields: { uuid_field_id => ref_uuid } })
         end
         uuid_task.update(notes: ref_uuid)
       end
@@ -202,7 +210,9 @@ module PandaBot
         tasks = tasks.map { |task| client.tasks.find_by_id(task.gid) }
         # keep only back team task
         tasks = tasks.select do |task|
-          task.custom_fields.any? { |field| field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080667' }
+          task.custom_fields.any? do |field|
+            field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080667'
+          end
         end
       end
 
@@ -257,7 +267,6 @@ module PandaBot
       @prod_section ||= client.sections.find_by_project(project: SPRINT_PROJECT_GID).find { |section| section.name == 'Production' }
     end
 
-
     #
     # If you dont specify channel, it will send PM to Jeremie by default.
     # Dont flood me, or do. Who I am to tell you how to live your life.
@@ -265,13 +274,13 @@ module PandaBot
     def send_slack_notification(version)
       webhook_url = 'https://hooks.slack.com/services/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'
       message = "Hivency #{version} : Deploy in production"
-      HTTParty.post(webhook_url, body: { text: message, channel: 'hivencyworldwide' }.to_json, headers: {} )
+      HTTParty.post(webhook_url, body: { text: message, channel: 'hivencyworldwide' }.to_json, headers: {})
     end
 
     def slack_message_release(version, patchnote)
       webhook_url = 'https://hooks.slack.com/services/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'
       message = "Hivency #{version} : Release creation\n ``` #{patchnote} \n```"
-      HTTParty.post(webhook_url, body: { text: message, channel: 'tech' }.to_json, headers: {} )
+      HTTParty.post(webhook_url, body: { text: message, channel: 'tech' }.to_json, headers: {})
     end
   end
 end

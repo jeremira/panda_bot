@@ -8,6 +8,8 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    addressable (2.7.0)
+      public_suffix (>= 2.0.2, < 5.0)
     asana (0.10.0)
       faraday (~> 0.9)
       faraday_middleware (~> 0.9)
@@ -15,6 +17,8 @@ GEM
       oauth2 (~> 1.4)
     ast (2.4.0)
     byebug (11.1.1)
+    crack (0.4.3)
+      safe_yaml (~> 1.0.0)
     diff-lcs (1.3)
     faraday (0.17.3)
       multipart-post (>= 1.2, < 3)
@@ -23,6 +27,7 @@ GEM
     faraday_middleware-multi_json (0.0.6)
       faraday_middleware
       multi_json
+    hashdiff (1.0.1)
     httparty (0.18.0)
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
@@ -43,6 +48,7 @@ GEM
     parallel (1.19.1)
     parser (2.7.0.3)
       ast (~> 2.4.0)
+    public_suffix (4.0.3)
     rack (2.2.2)
     rainbow (3.0.0)
     rake (10.5.0)
@@ -69,7 +75,12 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.7)
     ruby-progressbar (1.10.1)
+    safe_yaml (1.0.5)
     unicode-display_width (1.6.1)
+    webmock (2.3.2)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+      hashdiff
 
 PLATFORMS
   ruby
@@ -81,6 +92,7 @@ DEPENDENCIES
   rake (~> 10.0)
   rspec (~> 3.0)
   rubocop (~> 0.80)
+  webmock (~> 2.1)
 
 BUNDLED WITH
    1.17.3
