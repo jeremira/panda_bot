@@ -23,14 +23,32 @@ module PandaBot
       uuid_task = client.tasks.find_by_id '1168601077028969'
       ref_uuid = uuid_task.notes
 
-      [to_groom_backlog, sprint_backlog, doing_section, blocked_section, review_code_section, review_produit_section].each do |section|
+      sections = [to_groom_backlog, sprint_backlog, doing_section, blocked_section, review_code_section, review_produit_section]
+
+      sections.each do |section|
+        puts "Section : #{section.name}"
         tasks_from_section(section.gid).each do |task|
-          next unless uuid_task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].strip.empty? }
+          puts "updating task : #{task.name}"
+          task = client.tasks.find_by_id(task.gid)
+
+          task.subtasks.each do |task|
+            puts "updating sub task : #{task.name}"
+            task = client.tasks.find_by_id(task.gid)
+
+            next unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
+
+            ref_uuid = ref_uuid.gsub(/\d+/) do |match|
+              match.to_i + 1
+            end
+            task.update({custom_fields: { uuid_field_id => ref_uuid}})
+          end
+
+          next unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
 
           ref_uuid = ref_uuid.gsub(/\d+/) do |match|
             match.to_i + 1
           end
-          task.update({custom_fields: { uuid_field_id => ref_uuid}}) if task.custom
+          task.update({custom_fields: { uuid_field_id => ref_uuid}})
         end
         uuid_task.update(notes: ref_uuid)
       end
@@ -200,11 +218,11 @@ module PandaBot
     # Fecth and return specfic section from Sprint project
 
     def to_groom_backlog
-      @backlog ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'To groom' }
+      @to_groom_backlog ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'To groom' }
     end
 
     def sprint_backlog
-      @backlog ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'Sprint' }
+      @sprint_backlog ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'Sprint' }
     end
 
     def todo_section
