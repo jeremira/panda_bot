@@ -14,6 +14,8 @@ def help
   puts '           - Create Release patchnote, move all card in Asana from Staging to Release section'
   puts '     please deploy_in_production v3.14'
   puts '           - moove all card in Asana from Release to Production section, warn team on slack #hivencyworldwide channel'
+  puts '     please tag_uuid'
+  puts '           - add uuid on all new cards (backlog & sprint)'
 end
 
 def end_script
@@ -61,6 +63,9 @@ when 'deploy_in_production'
 when 'create_reporting'
   puts "--- Generate reporting in `/reporting.txt` ..."
   bot.create_reporting
+when 'tag_uuid'
+  puts "--- Add uuid on new tasks"
+  bot.tag_uuid
 when 'help'
   help
 else
