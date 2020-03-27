@@ -23,7 +23,7 @@ module PandaBot
       uuid_task = client.tasks.find_by_id '1168601077028969'
       ref_uuid = uuid_task.notes
 
-      [to_groom_backlog, sprint_backlog, doing_section, blocked_section, review_code_section, review_produit_section] .each do |section|
+      [to_groom_backlog, sprint_backlog, doing_section, blocked_section, review_code_section, review_produit_section].each do |section|
         tasks_from_section(section.gid).each do |task|
           next unless uuid_task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].strip.empty? }
 
