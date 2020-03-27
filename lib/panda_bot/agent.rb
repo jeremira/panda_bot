@@ -23,14 +23,17 @@ module PandaBot
       uuid_task = client.tasks.find_by_id '1168601077028969'
       ref_uuid = uuid_task.notes
 
-      find_back_team_tasks_from_section(todo_section.gid).each do |task|
-        ref_uuid = ref_uuid.gsub(/\d+/) do |match|
-          match.to_i + 1
-        end
-        task.update({custom_fields: { uuid_field_id => ref_uuid}})
-      end
+      [to_groom_backlog, sprint_backlog, doing_section, blocked_section, review_code_section, review_produit_section] .each do |section|
+        tasks_from_section(section.gid).each do |task|
+          next unless uuid_task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].strip.empty? }
 
-      uuid_task.update(notes: ref_uuid)
+          ref_uuid = ref_uuid.gsub(/\d+/) do |match|
+            match.to_i + 1
+          end
+          task.update({custom_fields: { uuid_field_id => ref_uuid}}) if task.custom
+        end
+        uuid_task.update(notes: ref_uuid)
+      end
     end
 
     #
@@ -39,12 +42,12 @@ module PandaBot
     #
     def create_release(version)
       puts '------ fetching staging tasks'
-      staged_tasks = find_back_team_tasks_from_section(staging_section.gid)
+      staged_tasks = tasks_from_section(staging_section.gid)
       puts '------ moving staging tasks'
       move_those tasks: staged_tasks, to: release_section
       # generate patch notes
       puts '------ generate patch note'
-      report = staged_tasks.map(&:name).sort.unshift("# Hivency #{version}").join("\n - ")
+      report = tasks_from_section(release_section.gid, only: :back).map(&:name).sort.unshift("# Hivency #{version}").join("\n - ")
       puts '------ noticing slack'
       slack_message_release(version, report)
     end
@@ -54,13 +57,13 @@ module PandaBot
     # Notify slack on #hivencyworlwide channel
     #
     def deploy_in_production(version)
+      puts '------ noticing slack'
+      # Warn hivency_worldwide on slack
+      send_slack_notification(version)
       puts '------ fetching release tasks'
-      release_tasks = find_back_team_tasks_from_section(release_section.gid)
+      release_tasks = tasks_from_section(release_section.gid)
       puts '------ moving release tasks'
       move_those tasks: release_tasks, to: prod_section
-      puts '------ noticing slack'
-      # Warn hivency on slack
-      send_slack_notification(version)
     end
 
     #
@@ -68,9 +71,9 @@ module PandaBot
     # Kind of random shit when you tired or too busy to do this shit
     #
     def create_reporting
-      comings = find_back_team_tasks_from_section(todo_section.gid).first(rand(2..5)).map(&:name).join("\n")
-      doings  = find_back_team_tasks_from_section(staging_section.gid).first(rand(2..6)).map(&:name).join("\n")
-      dones   = find_back_team_tasks_from_section(release_section.gid).first(rand(2..5)).map(&:name).join("\n")
+      comings = tasks_from_section(todo_section.gid, only: :back).first(rand(2..5)).map(&:name).join("\n")
+      doings  = tasks_from_section(staging_section.gid, only: :back).first(rand(2..7)).map(&:name).join("\n")
+      dones   = tasks_from_section(release_section.gid, only: :back).first(rand(2..5)).map(&:name).join("\n")
 
       File.write 'reporting.txt', ['Terminé', dones, 'En cours', doings, 'A venir', comings].join("\n")
     end
@@ -172,15 +175,20 @@ module PandaBot
       client.teams.find_by_organization organization: WS_GID
     end
 
-    def find_back_team_tasks_from_section(section_gid)
+    def tasks_from_section(section_gid, only: nil)
       # find all tasks in this peculiar section
       tasks = client.tasks.find_by_section(section: section_gid)
-      # fetch tasks details
-      tasks = tasks.map { |task| client.tasks.find_by_id(task.gid) }
-      # keep only back team task
-      tasks.select do |task|
-        task.custom_fields.any? { |field| field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080667' }
+
+      if only == :back
+        # fetch tasks details
+        tasks = tasks.map { |task| client.tasks.find_by_id(task.gid) }
+        # keep only back team task
+        tasks = tasks.select do |task|
+          task.custom_fields.any? { |field| field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080667' }
+        end
       end
+
+      tasks
     end
 
     def move_those(tasks:, to:)
@@ -190,8 +198,33 @@ module PandaBot
     end
 
     # Fecth and return specfic section from Sprint project
+
+    def to_groom_backlog
+      @backlog = ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'To groom' }
+    end
+
+    def sprint_backlog
+      @backlog = ||= client.sections.find_by_project(project: BACKLOG_PROJECT_GID).find { |section| section.name == 'Sprint' }
+    end
+
     def todo_section
       @todo_section ||= client.sections.find_by_project(project: SPRINT_PROJECT_GID).find { |section| section.name == 'Todo' }
+    end
+
+    def doing_section
+      @doing_section ||= client.sections.find_by_project(project: SPRINT_PROJECT_GID).find { |section| section.name == 'Doing' }
+    end
+
+    def blocked_section
+      @blocked_section ||= client.sections.find_by_project(project: SPRINT_PROJECT_GID).find { |section| section.name == 'Blocked' }
+    end
+
+    def review_code_section
+      @review_section ||= client.sections.find_by_project(project: SPRINT_PROJECT_GID).find { |section| section.name == 'Review Code' }
+    end
+
+    def review_produit_section
+      @review_produit_section ||= client.sections.find_by_project(project: SPRINT_PROJECT_GID).find { |section| section.name == 'Review Produit' }
     end
 
     def staging_section
