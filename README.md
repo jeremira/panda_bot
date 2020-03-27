@@ -7,10 +7,11 @@ Featuring quadri-core neural network with blockain DNS, PandaBot is here to help
 
 ## Installation
 
-Clone the project  && install the gem
+Clone the project & install the gem. Its not distributed in a distant repo so you'll need to build and install locally.
 ```
 git clone git@gitlab.com:hivency/panda_bot.git
 cd panda_bot
+gem build panda_bot
 gem install panda_bot
 ```
 
@@ -20,6 +21,7 @@ You can interact with the bot straight in your console.
 ```
 please help
 ```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/hivency/panda_bot. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.

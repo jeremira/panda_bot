@@ -9,10 +9,10 @@ def help
   puts 'Name'
   puts '     pandabot - Instruction to handle asana assle'
   puts 'SYNOPSIS'
-  puts '     ./please.rb  [instruction] [version]'
-  puts '     ./please.rb create_release v3.14'
+  puts '     please  [instruction] [version]'
+  puts '     please create_release v3.14'
   puts '           - Create Release patchnote, move all card in Asana from Staging to Release section'
-  puts '     ./please.rb deploy_in_production v3.14'
+  puts '     please deploy_in_production v3.14'
   puts '           - moove all card in Asana from Release to Production section, warn team on slack #hivencyworldwide channel'
 end
 
@@ -35,7 +35,7 @@ puts ''
 
 if ARGV.length < 1
   puts 'Please instruct me what to do :)'
-  puts 'instructions : `./please.rb help`'
+  puts 'instructions : `please help`'
   end_script
 end
 
