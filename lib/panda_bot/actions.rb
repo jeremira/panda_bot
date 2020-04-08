@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'panda_bot/actions/tag_uuids'
+require 'panda_bot/actions/uuids'
 
 module PandaBot
   module Actions

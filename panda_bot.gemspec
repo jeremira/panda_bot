@@ -16,7 +16,9 @@ Gem::Specification.new do |spec|
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
-  raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.' unless spec.respond_to?(:metadata)
+  unless spec.respond_to?(:metadata)
+    raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.'
+  end
 
   spec.metadata['allowed_push_host'] = 'http://mygemserver.com'
   spec.metadata['homepage_uri'] = spec.homepage
@@ -41,5 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'rubocop', '~> 0.80'
+  spec.add_development_dependency 'rubocop-performance'
+  spec.add_development_dependency 'rubocop-rspec'
   spec.add_development_dependency 'webmock', '~> 2.1'
 end

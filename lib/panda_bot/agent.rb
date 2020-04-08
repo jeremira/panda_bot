@@ -22,7 +22,20 @@ module PandaBot
     def find_task(gid:)
       client.tasks.find_by_id gid
     rescue Asana::Errors::APIError => e
+      puts "Asana::Errors suppressed : #{e.message}"
       OpenStruct.new(gid: gid)
+    end
+
+    #
+    # Hivency related pre-fetch resources
+    #
+
+    def sprint_tasks
+      @sprint_tasks ||= client.tasks.find_all(project: SPRINT_PROJECT_GID, completed_since: Date.today.prev_day )
+    end
+
+    def backlog_tasks
+      @backlog_tasks ||= client.tasks.find_all(project: SPRINT_PROJECT_GID)
     end
 
     def tag_uuid
@@ -42,7 +55,9 @@ module PandaBot
             puts "updating sub task : #{task.name}"
             task = client.tasks.find_by_id(task.gid)
 
-            next unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
+            unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
+              next
+            end
 
             ref_uuid = ref_uuid.gsub(/\d+/) do |match|
               match.to_i + 1
@@ -50,7 +65,9 @@ module PandaBot
             task.update({ custom_fields: { uuid_field_id => ref_uuid } })
           end
 
-          next unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
+          unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
+            next
+          end
 
           ref_uuid = ref_uuid.gsub(/\d+/) do |match|
             match.to_i + 1
