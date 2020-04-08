@@ -49,8 +49,7 @@ RSpec.describe PandaBot::Actions::TagUuids do
   describe 'add_uuid' do
     let(:tested_method) { tagger.add_uuid task }
     let(:task) do
-      instance_double Asana::Resources::Task,
-                      update: true,
+      instance_double Asana::Resources::Task, is_a?: true, update: true,
                       custom_fields: [{ 'gid' => '1168611057004190', 'text_value' => nil }]
     end
 
@@ -68,17 +67,22 @@ RSpec.describe PandaBot::Actions::TagUuids do
       end
     end
 
-    context 'without a found task' do
+    context 'without a valid task' do
+      let(:task) do
+        instance_double Asana::Resources::Task, is_a?: false, update: true,
+                        custom_fields: [{ 'gid' => '1168611057004190', 'text_value' => nil }]
+      end
+
       it 'does not update the task' do
         tested_method
-        expect(task).to have_received(:update).once.with(custom_fields: { '1168611057004190' => 'MOK-124' })
+        expect(task).not_to have_received(:update)
       end
-      it 'increment the uuid' do
+      it 'does not increment the uuid' do
         tested_method
-        expect(tagger.uuid).to eq 'MOK-124'
+        expect(tagger.uuid).to eq 'MOK-123'
       end
-      it 'returns the uuid' do
-        expect(tested_method).to eq 'MOK-124'
+      it 'returns nil' do
+        expect(tested_method).to eq nil
       end
     end
   end

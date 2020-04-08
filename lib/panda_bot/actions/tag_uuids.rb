@@ -13,7 +13,7 @@ module PandaBot
       end
 
       def add_uuid(task)
-        # next if pas Asana task
+        return unless task.is_a? Asana::Resources::Task
         return unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
 
         @uuid = @uuid.gsub(/\d+/) do |match|
