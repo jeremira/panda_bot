@@ -17,7 +17,7 @@ module PandaBot
         agent.backlog_tasks.each { |task| add_uuid task }
         agent.find_task(gid: '1168601077028969').update(notes: ref_uuid)
       end
-      # 
+      #
       # def hivency_tasks
       #   SPRINT_PROJECT_GID = '1139348995392150' # sprint project gid
       #   BACKLOG_PROJECT_GID = '1139062746771721' #
