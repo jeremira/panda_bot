@@ -54,44 +54,6 @@ module PandaBot
       []
     end
 
-
-
-    def tag_uuid
-      uuid_field_id = '1168611057004190'
-      uuid_task = client.tasks.find_by_id '1168601077028969'
-      ref_uuid = uuid_task.notes
-
-      sections = [to_groom_backlog, sprint_backlog, doing_section, blocked_section, review_code_section, review_produit_section]
-
-      sections.each do |section|
-        puts "Section : #{section.name}"
-        tasks_from_section(section.gid).each do |task|
-          puts "updating task : #{task.name}"
-          task = client.tasks.find_by_id(task.gid)
-
-          task.subtasks.each do |task|
-            puts "updating sub task : #{task.name}"
-            task = client.tasks.find_by_id(task.gid)
-
-            next unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
-
-            ref_uuid = ref_uuid.gsub(/\d+/) do |match|
-              match.to_i + 1
-            end
-            task.update({ custom_fields: { uuid_field_id => ref_uuid } })
-          end
-
-          next unless task.custom_fields.find { |f| f['gid'] == '1168611057004190' && f['text_value'].to_s.strip.empty? }
-
-          ref_uuid = ref_uuid.gsub(/\d+/) do |match|
-            match.to_i + 1
-          end
-          task.update({ custom_fields: { uuid_field_id => ref_uuid } })
-        end
-        uuid_task.update(notes: ref_uuid)
-      end
-    end
-
     #
     # Will move all Back team card from Staging to Release section in Sprint Project
     # Return PatchNote

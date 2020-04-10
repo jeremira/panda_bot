@@ -65,7 +65,7 @@ when 'create_reporting'
   bot.create_reporting
 when 'tag_uuid'
   puts "--- Add uuid on new tasks"
-  bot.tag_uuid
+  PandaBot::Actions::Uuids.new.tag!
 when 'help'
   help
 else
