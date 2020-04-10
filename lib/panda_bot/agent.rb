@@ -281,7 +281,6 @@ module PandaBot
     # Enrish an Tasks collection with task's details and related subtask
     #
     def tasks_details(tasks)
-      puts tasks.size
       tasks = tasks.map do |task|
         print '.'
         task = client.tasks.find_by_id(task.gid)

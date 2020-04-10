@@ -3,11 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe PandaBot::Actions::ProjectName do
-  let(:name) { described_class.new 'bazok'}
+  let(:name) { described_class.new }
 
   describe 'Initialize' do
     it 'instanciates itself' do
-      expect(tagger).to be_a described_class
+      expect(name).to be_a described_class
     end
   end
 end
