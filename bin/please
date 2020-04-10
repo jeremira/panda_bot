@@ -62,7 +62,7 @@ when 'tag_uuid'
   PandaBot::Actions::Uuids.new.tag!
 when 'bullshit_me'
   puts "--- here your shit"
-  PandaBot::Actions::ProjectName.new ARGV[1..-1]
+  PandaBot::Actions::ProjectName.new *ARGV[1..-1]
 when 'help'
   help
 else
