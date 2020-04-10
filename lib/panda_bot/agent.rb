@@ -64,7 +64,6 @@ module PandaBot
       move_those tasks: staged_tasks, to: release_section
       # generate patch notes
       puts '------ generate patch note'
-      # report = tasks_from_section(release_section.gid).map(&:name).sort.unshift("# Hivency #{version}").join("\n - ")
       released = tasks_details(tasks_from_section(release_section.gid))
       report = ["# Hivency #{version}"]
       # back tasks
@@ -302,17 +301,15 @@ module PandaBot
     # Dont flood me, or do. Who I am to tell you how to live your life.
     #
     def send_slack_notification(version)
-      # webhook_url = 'https://hooks.slack.com/services/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'
-      # message = "Hivency #{version} : Deploy in production"
-      # HTTParty.post(webhook_url, body: { text: message, channel: 'hivencyworldwide' }.to_json, headers: {})
+      webhook_url = 'https://hooks.slack.com/services/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'
+      message = "Hivency #{version} : Deploy in production"
+      HTTParty.post(webhook_url, body: { text: message, channel: 'hivencyworldwide' }.to_json, headers: {})
     end
 
     def slack_message_release(version, patchnote)
-      # webhook_url = 'https://hooks.slack.com/services/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'
-      # message = "Hivency #{version} : Release creation\n ``` #{patchnote} \n```"
-      # HTTParty.post(webhook_url, body: { text: message, channel: 'tech' }.to_json, headers: {})
-      puts version
-      puts patchnote
+      webhook_url = 'https://hooks.slack.com/services/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'
+      message = "Hivency #{version} : Release creation\n ``` #{patchnote} \n```"
+      HTTParty.post(webhook_url, body: { text: message, channel: 'tech' }.to_json, headers: {})
     end
 
     private
