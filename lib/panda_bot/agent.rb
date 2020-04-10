@@ -64,9 +64,48 @@ module PandaBot
       move_those tasks: staged_tasks, to: release_section
       # generate patch notes
       puts '------ generate patch note'
-      report = tasks_from_section(release_section.gid, only: :back).map(&:name).sort.unshift("# Hivency #{version}").join("\n - ")
+      # report = tasks_from_section(release_section.gid).map(&:name).sort.unshift("# Hivency #{version}").join("\n - ")
+      released = tasks_details(tasks_from_section(release_section.gid))
+      report = ["# Hivency #{version}"]
+      # back tasks
+      report << ' --- Back API ---'
+      tmp_report = []
+      released.select do |task|
+        task.custom_fields.any? do |field|
+          field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080667'
+        end
+      end.each { |task| back_report << " - #{task&.name}" }
+      tmp_report.sort.each { |name| report << name }
+      # BrandApp
+      report << ' --- Brand APP ---'
+      tmp_report = []
+      released.select do |task|
+        task.custom_fields.any? do |field|
+          field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080668'
+        end
+      end.each { |task| report << " - #{task&.name}" }
+      tmp_report.sort.each { |name| report << name }
+      # Influapp
+      tmp_report = []
+      report << ' --- Influencer APP ---'
+      released.select do |task|
+        task.custom_fields.any? do |field|
+          field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080669'
+        end
+      end.each { |task| report << " - #{task&.name}" }
+      tmp_report.sort.each { |name| report << name }
+      # other misc
+      report << ' --- Miscellaneous ---'
+      tmp_report = []
+      released.reject do |task|
+        task.custom_fields.any? do |field|
+          field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && %w[1108446733080667 1108446733080669
+                                                                                          1108446733080668].include?(field['enum_value']['gid'])
+        end
+      end.each { |task| report << " - #{task&.name}" }
+      tmp_report.sort.each { |name| report << name }
       puts '------ noticing slack'
-      slack_message_release(version, report)
+      slack_message_release(version, report.join("\n"))
     end
 
     #
@@ -138,7 +177,7 @@ module PandaBot
       # Priotity Gid 1106632902441039
       # "1106632902441040"=>"Haute", "1106632902441041"=>"Moyenne", "1106632902441042"=>"Basse"
       # -- 'Type de tâche' Gid 1108446733080666
-      # "1111769166317621"=>"Data",  "1108446733080667"=>"Back",  "1108446733080668"=>"Webapp Marques",  "1108446733080669"=>"Webapp Influenceurs",
+      # "1111769166317621"=>"Data",  "1108446733080667"=>"Back", "1108446733080668"=>"Webapp Marques",  "1108446733080669"=>"Webapp Influenceurs",
       # "1108446733080670"=>"App mobile", "1142492549756599"=>"Webapps", "1142492549756600"=>"Front (toutes apps)", "1108446733080671"=>"Design",
       # "1108446733080672"=>"UX", "1108448059358204"=>"PO", "1108448059358205"=>"PM", "1126202029939940"=>"QA", "1149114806705390"=>"FUUUUUUULL STACK"
       # -- 'Source' Gid 1139062746771728
@@ -263,15 +302,17 @@ module PandaBot
     # Dont flood me, or do. Who I am to tell you how to live your life.
     #
     def send_slack_notification(version)
-      webhook_url = 'https://hooks.slack.com/services/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'
-      message = "Hivency #{version} : Deploy in production"
-      HTTParty.post(webhook_url, body: { text: message, channel: 'hivencyworldwide' }.to_json, headers: {})
+      # webhook_url = 'https://hooks.slack.com/services/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'
+      # message = "Hivency #{version} : Deploy in production"
+      # HTTParty.post(webhook_url, body: { text: message, channel: 'hivencyworldwide' }.to_json, headers: {})
     end
 
     def slack_message_release(version, patchnote)
-      webhook_url = 'https://hooks.slack.com/services/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'
-      message = "Hivency #{version} : Release creation\n ``` #{patchnote} \n```"
-      HTTParty.post(webhook_url, body: { text: message, channel: 'tech' }.to_json, headers: {})
+      # webhook_url = 'https://hooks.slack.com/services/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'
+      # message = "Hivency #{version} : Release creation\n ``` #{patchnote} \n```"
+      # HTTParty.post(webhook_url, body: { text: message, channel: 'tech' }.to_json, headers: {})
+      puts version
+      puts patchnote
     end
 
     private
