@@ -73,7 +73,7 @@ module PandaBot
         task.custom_fields.any? do |field|
           field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080667'
         end
-      end.each { |task| back_report << " - #{task&.name}" }
+      end.each { |task| tmp_report << " - #{task&.name}" }
       tmp_report.sort.each { |name| report << name }
       # BrandApp
       report << ' --- Brand APP ---'
@@ -82,7 +82,7 @@ module PandaBot
         task.custom_fields.any? do |field|
           field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080668'
         end
-      end.each { |task| report << " - #{task&.name}" }
+      end.each { |task| tmp_report << " - #{task&.name}" }
       tmp_report.sort.each { |name| report << name }
       # Influapp
       tmp_report = []
@@ -91,7 +91,7 @@ module PandaBot
         task.custom_fields.any? do |field|
           field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && field['enum_value']['gid'] == '1108446733080669'
         end
-      end.each { |task| report << " - #{task&.name}" }
+      end.each { |task| tmp_report << " - #{task&.name}" }
       tmp_report.sort.each { |name| report << name }
       # other misc
       report << ' --- Miscellaneous ---'
@@ -101,7 +101,7 @@ module PandaBot
           field['gid'] && field['gid'] == '1108446733080666' && field['enum_value'] && %w[1108446733080667 1108446733080669
                                                                                           1108446733080668].include?(field['enum_value']['gid'])
         end
-      end.each { |task| report << " - #{task&.name}" }
+      end.each { |task| tmp_report << " - #{task&.name}" }
       tmp_report.sort.each { |name| report << name }
       puts '------ noticing slack'
       slack_message_release(version, report.join("\n"))
