@@ -9,30 +9,24 @@ def help
   puts 'Name'
   puts '     pandabot - Instruction to handle asana assle'
   puts 'SYNOPSIS'
-  puts '     please  [instruction] [version]'
+  puts '     please  [instruction] [args]'
   puts '     please create_release v3.14'
   puts '           - Create Release patchnote, move all card in Asana from Staging to Release section'
   puts '     please deploy_in_production v3.14'
   puts '           - moove all card in Asana from Release to Production section, warn team on slack #hivencyworldwide channel'
   puts '     please tag_uuid'
   puts '           - add uuid on all new cards (backlog & sprint)'
+  puts '     please bullshit_me babar'
+  puts '           - generate a random bullshit project name'
 end
 
 def end_script
   puts ''
-  puts ''
-  puts "######################################################################################################################################################"
-  puts "######################################################################################################################################################"
-  puts "######################################################################################################################################################"
-  puts "######################################################################################################################################################"
+  puts 'to ##'
   exit
 end
 
-puts "######################################################################################################################################################"
-puts "###################################################################### PandaBot ######################################################################"
-puts "############################################################# Do what you dont wanna do ##############################################################"
-puts "######################################################################################################################################################"
-puts ''
+puts '## PandaBot'
 puts ''
 
 if ARGV.length < 1
@@ -66,6 +60,9 @@ when 'create_reporting'
 when 'tag_uuid'
   puts "--- Add uuid on new tasks"
   PandaBot::Actions::Uuids.new.tag!
+when 'bullshit_me'
+  puts "--- here your shit"
+  PandaBot::Actions::ProjectName.new ARGV[1..-1]
 when 'help'
   help
 else
