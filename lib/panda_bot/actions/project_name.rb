@@ -52,6 +52,8 @@ module PandaBot
           U: %w[ultimate unique unsorted unknown unbounded untested],
           V: %w[virtual virtualised validation valid vector],
           W: %w[web world wide watcher watch wise],
+          X: %w[xml xpost xtra],
+          Y: %w[yield yielding yarn yop],
           Z: %w[zapper zookeeper ziplok]
         }
       end
