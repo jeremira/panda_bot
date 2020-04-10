@@ -95,9 +95,9 @@ RSpec.describe PandaBot::Actions::Uuids do
         expect(tagger).not_to have_received(:add_uuid)
       end
 
-      it 'does not update uuid reference in database' do
+      it 'update uuid reference in database' do
         tested_method
-        expect(ref_task_double).not_to have_received(:update)
+        expect(ref_task_double).to have_received(:update).once.with(notes: 'MOK-123')
       end
     end
   end

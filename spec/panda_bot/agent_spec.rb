@@ -164,4 +164,104 @@ RSpec.describe PandaBot::Agent do
       end
     end
   end
+
+  describe '#backlog_tasks' do
+    let(:tested_method) { agent.backlog_tasks }
+    let(:frozen_time) { Date.new 2020, 2, 3 }
+
+    context 'with a successfull call' do
+      let(:tasks_data) do
+        [
+          { 'gid' => 'task_id_123', "resource_type": 'task', "name": 'Buy catnip' },
+          { 'gid' => 'task_id_456', "resource_type": 'task', "name": 'Buy catnap' }
+        ]
+      end
+
+      before do
+        stub_request(
+          :get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721'
+        ).to_return(status: 200, body: { 'data' => tasks_data }.to_json, headers: {})
+      end
+
+      it 'queries sprint project tasks' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721')
+      end
+
+      it 'returns an collection' do
+        expect(tested_method).to be_an Asana::Collection
+      end
+
+      it 'returns all records' do
+        expect(tested_method.size).to eq 2
+      end
+
+      it 'include first task' do
+        expect(tested_method.find { |task| task.gid == 'task_id_123' }).to be_an Asana::Task
+      end
+
+      it 'include second task' do
+        expect(tested_method.find { |task| task.gid == 'task_id_456' }).to be_an Asana::Task
+      end
+    end
+
+    context 'with a successfull empty call' do
+      before do
+        stub_request(
+          :get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721'
+        ).to_return(status: 200, body: { 'data' => [] }.to_json, headers: {})
+      end
+
+      it 'queries sprint project tasks' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721')
+      end
+
+      it 'returns a collection' do
+        expect(tested_method).to be_an Asana::Collection
+      end
+
+      it 'returns tasks collection' do
+        expect(tested_method.size).to eq 0
+      end
+    end
+
+    context 'with a unsuccessfull call' do
+      before do
+        stub_request(
+          :get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721'
+        ).to_return(status: 404, body: {}.to_json, headers: {})
+      end
+
+      it 'queries sprint project tasks' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721')
+      end
+
+      it 'returns an empty Array' do
+        expect(tested_method).to eq []
+      end
+    end
+
+    context 'with a cached result' do
+      let(:tasks_data) do
+        [
+          { 'gid' => 'task_id_123', "resource_type": 'task', "name": 'Buy catnip' },
+          { 'gid' => 'task_id_456', "resource_type": 'task', "name": 'Buy catnap' }
+        ]
+      end
+
+      before do
+        stub_request(
+          :get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721'
+        ).to_return(status: 200, body: { 'data' => tasks_data }.to_json, headers: {})
+        tested_method
+      end
+
+      it 'queries sprint project tasks only once' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721', times: 1)
+      end
+    end
+  end
 end

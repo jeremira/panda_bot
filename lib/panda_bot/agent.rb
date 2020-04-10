@@ -19,6 +19,9 @@ module PandaBot
       end
     end
 
+    #
+    # Query Asana API to find one specific task
+    #
     def find_task(gid:)
       client.tasks.find_by_id gid
     rescue Asana::Errors::APIError => e
@@ -26,10 +29,13 @@ module PandaBot
       OpenStruct.new(gid: gid)
     end
 
-    #
-    # Hivency related pre-fetch resources
-    #
+    # =
+    # Hivency related pre-fetched resources
+    # =
 
+    #
+    # All tasks not yet completed (minus 24h) in Sprint project
+    #
     def sprint_tasks
       @sprint_tasks ||= client.tasks.find_all(project: SPRINT_PROJECT_GID, completed_since: Date.today.prev_day)
     rescue Asana::Errors::APIError => e
@@ -37,8 +43,14 @@ module PandaBot
       []
     end
 
+    #
+    # All tasks from Backlog project
+    #
     def backlog_tasks
-      @backlog_tasks ||= client.tasks.find_all(project: SPRINT_PROJECT_GID)
+      @backlog_tasks ||= client.tasks.find_all(project: BACKLOG_PROJECT_GID)
+    rescue Asana::Errors::APIError => e
+      puts "Asana::Errors suppressed : #{e.message}"
+      []
     end
 
     def tag_uuid
