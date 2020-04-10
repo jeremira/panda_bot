@@ -19,12 +19,16 @@ module PandaBot
       end
 
       def tag!
+        puts "Fetching Sprint tasks"
         agent.sprint_tasks.each { |task| add_uuid task }
+        puts "Fetching Backlog tasks"
         agent.backlog_tasks.each { |task| add_uuid task }
+        puts "Updating Uuid in database"
         agent.find_task(gid: REF_UUID_TASK_GID).update(notes: uuid)
       end
 
       def add_uuid(task)
+        puts "Updating '#{task.name}' uuid..."
         return unless task.is_a? Asana::Resources::Task
         # Uuid field is not present/empty
         return unless task.custom_fields.find { |field| field['gid'] == UUID_FIELD_GID && field['text_value'].to_s.strip.empty? }

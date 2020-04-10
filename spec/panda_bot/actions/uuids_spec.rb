@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe PandaBot::Actions::Uuids do
   let(:tagger) { described_class.new }
   let(:agent_double) { instance_double PandaBot::Agent }
-  let(:ref_task_double) { instance_double Asana::Resources::Task, notes: 'MOK-123', update: true }
+  let(:ref_task_double) { instance_double Asana::Resources::Task, notes: 'MOK-123', update: true, name: 'my_mock' }
 
   before do
     allow(PandaBot::Agent).to receive(:new).and_return(agent_double)
@@ -105,7 +105,7 @@ RSpec.describe PandaBot::Actions::Uuids do
   describe 'add_uuid' do
     let(:tested_method) { tagger.add_uuid task }
     let(:task) do
-      instance_double Asana::Resources::Task, is_a?: true, update: true,
+      instance_double Asana::Resources::Task, is_a?: true, update: true, name: 'my_mock',
                                               custom_fields: [{ 'gid' => '1168611057004190', 'text_value' => nil }]
     end
 
@@ -127,7 +127,7 @@ RSpec.describe PandaBot::Actions::Uuids do
 
     context 'without a valid task' do
       let(:task) do
-        instance_double Asana::Resources::Task, is_a?: false, update: true,
+        instance_double Asana::Resources::Task, is_a?: false, update: true, name: 'my_mock',
                                                 custom_fields: [{ 'gid' => '1168611057004190', 'text_value' => nil }]
       end
 

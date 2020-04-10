@@ -29,21 +29,10 @@ module PandaBot
       OpenStruct.new(gid: gid)
     end
 
+
     # =
     # Hivency related pre-fetched resources ( Fetch details and related subtasks )
     # =
-
-    #
-    # Enrish an Tasks collection with task's details and related subtask
-    #
-    def tasks_details(tasks)
-      tasks = tasks.map do |task|
-        task = client.tasks.find_by_id(task.gid)
-        sub_tasks = task.subtasks.map { |subtask| client.tasks.find_by_id(subtask.gid) }
-        [task, sub_tasks].flatten
-      end
-      tasks.flatten
-    end
 
     #
     # All tasks not yet completed (minus 24h) in Sprint project
@@ -64,6 +53,8 @@ module PandaBot
       puts "Asana::Errors suppressed : #{e.message}"
       []
     end
+
+
 
     def tag_uuid
       uuid_field_id = '1168611057004190'
@@ -320,6 +311,22 @@ module PandaBot
       webhook_url = 'https://hooks.slack.com/services/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'
       message = "Hivency #{version} : Release creation\n ``` #{patchnote} \n```"
       HTTParty.post(webhook_url, body: { text: message, channel: 'tech' }.to_json, headers: {})
+    end
+
+    private
+
+    #
+    # Enrish an Tasks collection with task's details and related subtask
+    #
+    def tasks_details(tasks)
+      puts tasks.size
+      tasks = tasks.map do |task|
+        print '.'
+        task = client.tasks.find_by_id(task.gid)
+        sub_tasks = task.subtasks.map { |subtask| client.tasks.find_by_id(subtask.gid) }
+        [task, sub_tasks].flatten
+      end
+      tasks.flatten
     end
   end
 end
