@@ -76,11 +76,27 @@ RSpec.describe PandaBot::Agent do
           { 'gid' => 'task_id_456', "resource_type": 'task', "name": 'Buy catnap' }
         ]
       end
+      let(:task1_data) do
+        {
+          "data": { 'gid' => 'task_id_123', "resource_type": 'task', "name": 'Buy catnip' }
+        }
+      end
+      let(:task2_data) do
+        {
+          "data": { 'gid' => 'task_id_456', "resource_type": 'task', "name": 'Buy catnap' }
+        }
+      end
 
       before do
         stub_request(
           :get, 'https://app.asana.com/api/1.0/tasks?completed_since=2020-02-02&limit=20&project=1139348995392150'
         ).to_return(status: 200, body: { 'data' => tasks_data }.to_json, headers: {})
+        stub_request(:get, 'https://app.asana.com/api/1.0/tasks/task_id_123').to_return(status: 200, body: task1_data.to_json, headers: {})
+        stub_request(:get, 'https://app.asana.com/api/1.0/tasks/task_id_123/subtasks?limit=20').to_return(status: 200, body: { 'data' => [] }.to_json,
+                                                                                                          headers: {})
+        stub_request(:get, 'https://app.asana.com/api/1.0/tasks/task_id_456').to_return(status: 200, body: task2_data.to_json, headers: {})
+        stub_request(:get, 'https://app.asana.com/api/1.0/tasks/task_id_456/subtasks?limit=20').to_return(status: 200, body: { 'data' => [] }.to_json,
+                                                                                                          headers: {})
       end
 
       it 'queries sprint project tasks' do
@@ -88,8 +104,28 @@ RSpec.describe PandaBot::Agent do
         assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?completed_since=2020-02-02&limit=20&project=1139348995392150')
       end
 
+      it 'queries details for task 1' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks/task_id_123')
+      end
+
+      it 'queries subtasks for task 1' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks/task_id_123/subtasks?limit=20')
+      end
+
+      it 'queries details for task 2' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks/task_id_456')
+      end
+
+      it 'queries subtasks for task 2' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks/task_id_456/subtasks?limit=20')
+      end
+
       it 'returns an collection' do
-        expect(tested_method).to be_an Asana::Collection
+        expect(tested_method).to be_an Array
       end
 
       it 'returns all records' do
@@ -118,7 +154,7 @@ RSpec.describe PandaBot::Agent do
       end
 
       it 'returns a collection' do
-        expect(tested_method).to be_an Asana::Collection
+        expect(tested_method).to be_an Array
       end
 
       it 'returns tasks collection' do
@@ -142,32 +178,10 @@ RSpec.describe PandaBot::Agent do
         expect(tested_method).to eq []
       end
     end
-
-    context 'with a cached result' do
-      let(:tasks_data) do
-        [
-          { 'gid' => 'task_id_123', "resource_type": 'task', "name": 'Buy catnip' },
-          { 'gid' => 'task_id_456', "resource_type": 'task', "name": 'Buy catnap' }
-        ]
-      end
-
-      before do
-        stub_request(
-          :get, 'https://app.asana.com/api/1.0/tasks?completed_since=2020-02-02&limit=20&project=1139348995392150'
-        ).to_return(status: 200, body: { 'data' => tasks_data }.to_json, headers: {})
-        tested_method
-      end
-
-      it 'queries sprint project tasks only once' do
-        tested_method
-        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?completed_since=2020-02-02&limit=20&project=1139348995392150', times: 1)
-      end
-    end
   end
 
   describe '#backlog_tasks' do
     let(:tested_method) { agent.backlog_tasks }
-    let(:frozen_time) { Date.new 2020, 2, 3 }
 
     context 'with a successfull call' do
       let(:tasks_data) do
@@ -176,20 +190,56 @@ RSpec.describe PandaBot::Agent do
           { 'gid' => 'task_id_456', "resource_type": 'task', "name": 'Buy catnap' }
         ]
       end
+      let(:task1_data) do
+        {
+          "data": { 'gid' => 'task_id_123', "resource_type": 'task', "name": 'Buy catnip' }
+        }
+      end
+      let(:task2_data) do
+        {
+          "data": { 'gid' => 'task_id_456', "resource_type": 'task', "name": 'Buy catnap' }
+        }
+      end
 
       before do
         stub_request(
           :get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721'
         ).to_return(status: 200, body: { 'data' => tasks_data }.to_json, headers: {})
+        stub_request(:get, 'https://app.asana.com/api/1.0/tasks/task_id_123').to_return(status: 200, body: task1_data.to_json, headers: {})
+        stub_request(:get, 'https://app.asana.com/api/1.0/tasks/task_id_123/subtasks?limit=20').to_return(status: 200, body: { 'data' => [] }.to_json,
+                                                                                                          headers: {})
+        stub_request(:get, 'https://app.asana.com/api/1.0/tasks/task_id_456').to_return(status: 200, body: task2_data.to_json, headers: {})
+        stub_request(:get, 'https://app.asana.com/api/1.0/tasks/task_id_456/subtasks?limit=20').to_return(status: 200, body: { 'data' => [] }.to_json,
+                                                                                                          headers: {})
       end
 
-      it 'queries sprint project tasks' do
+      it 'queries backlog project tasks' do
         tested_method
         assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721')
       end
 
+      it 'queries details for task 1' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks/task_id_123')
+      end
+
+      it 'queries subtasks for task 1' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks/task_id_123/subtasks?limit=20')
+      end
+
+      it 'queries details for task 2' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks/task_id_456')
+      end
+
+      it 'queries subtasks for task 2' do
+        tested_method
+        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks/task_id_456/subtasks?limit=20')
+      end
+
       it 'returns an collection' do
-        expect(tested_method).to be_an Asana::Collection
+        expect(tested_method).to be_an Array
       end
 
       it 'returns all records' do
@@ -212,13 +262,13 @@ RSpec.describe PandaBot::Agent do
         ).to_return(status: 200, body: { 'data' => [] }.to_json, headers: {})
       end
 
-      it 'queries sprint project tasks' do
+      it 'queries backlog project tasks' do
         tested_method
         assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721')
       end
 
       it 'returns a collection' do
-        expect(tested_method).to be_an Asana::Collection
+        expect(tested_method).to be_an Array
       end
 
       it 'returns tasks collection' do
@@ -233,34 +283,13 @@ RSpec.describe PandaBot::Agent do
         ).to_return(status: 404, body: {}.to_json, headers: {})
       end
 
-      it 'queries sprint project tasks' do
+      it 'queries backlog project tasks' do
         tested_method
         assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721')
       end
 
       it 'returns an empty Array' do
         expect(tested_method).to eq []
-      end
-    end
-
-    context 'with a cached result' do
-      let(:tasks_data) do
-        [
-          { 'gid' => 'task_id_123', "resource_type": 'task', "name": 'Buy catnip' },
-          { 'gid' => 'task_id_456', "resource_type": 'task', "name": 'Buy catnap' }
-        ]
-      end
-
-      before do
-        stub_request(
-          :get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721'
-        ).to_return(status: 200, body: { 'data' => tasks_data }.to_json, headers: {})
-        tested_method
-      end
-
-      it 'queries sprint project tasks only once' do
-        tested_method
-        assert_requested(:get, 'https://app.asana.com/api/1.0/tasks?limit=20&project=1139062746771721', times: 1)
       end
     end
   end

@@ -30,14 +30,26 @@ module PandaBot
     end
 
     # =
-    # Hivency related pre-fetched resources
+    # Hivency related pre-fetched resources ( Fetch details and related subtasks )
     # =
+
+    #
+    # Enrish an Tasks collection with task's details and related subtask
+    #
+    def tasks_details(tasks)
+      tasks = tasks.map do |task|
+        task = client.tasks.find_by_id(task.gid)
+        sub_tasks = task.subtasks.map { |subtask| client.tasks.find_by_id(subtask.gid) }
+        [task, sub_tasks].flatten
+      end
+      tasks.flatten
+    end
 
     #
     # All tasks not yet completed (minus 24h) in Sprint project
     #
     def sprint_tasks
-      @sprint_tasks ||= client.tasks.find_all(project: SPRINT_PROJECT_GID, completed_since: Date.today.prev_day)
+      tasks_details client.tasks.find_all(project: SPRINT_PROJECT_GID, completed_since: Date.today.prev_day)
     rescue Asana::Errors::APIError => e
       puts "Asana::Errors suppressed : #{e.message}"
       []
@@ -47,7 +59,7 @@ module PandaBot
     # All tasks from Backlog project
     #
     def backlog_tasks
-      @backlog_tasks ||= client.tasks.find_all(project: BACKLOG_PROJECT_GID)
+      tasks_details client.tasks.find_all(project: BACKLOG_PROJECT_GID)
     rescue Asana::Errors::APIError => e
       puts "Asana::Errors suppressed : #{e.message}"
       []
