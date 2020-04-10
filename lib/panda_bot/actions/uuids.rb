@@ -19,11 +19,11 @@ module PandaBot
       end
 
       def tag!
-        puts "Fetching Sprint tasks"
+        puts 'Fetching Sprint tasks'
         agent.sprint_tasks.each { |task| add_uuid task }
-        puts "Fetching Backlog tasks"
+        puts 'Fetching Backlog tasks'
         agent.backlog_tasks.each { |task| add_uuid task }
-        puts "Updating Uuid in database"
+        puts 'Updating Uuid in database'
         agent.find_task(gid: REF_UUID_TASK_GID).update(notes: uuid)
       end
 

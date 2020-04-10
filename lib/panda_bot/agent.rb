@@ -29,7 +29,6 @@ module PandaBot
       OpenStruct.new(gid: gid)
     end
 
-
     # =
     # Hivency related pre-fetched resources ( Fetch details and related subtasks )
     # =

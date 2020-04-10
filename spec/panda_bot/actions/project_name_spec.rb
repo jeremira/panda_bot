@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe PandaBot::Actions::ProjectName do
-  let(:name) { described_class.new }
+  let(:name) { described_class.new 'babar' }
 
   describe 'Initialize' do
     it 'instanciates itself' do
