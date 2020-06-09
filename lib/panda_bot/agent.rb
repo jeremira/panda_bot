@@ -15,7 +15,7 @@ module PandaBot
 
     def initialize
       @client = Asana::Client.new do |c|
-        c.authentication :access_token, '0/66c67dfebccaf0b87a0418ad4d6da549'
+        c.authentication :access_token, ENV['ASANA_TOKEN']
       end
     end
 
