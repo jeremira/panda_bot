@@ -51,7 +51,7 @@ GEM
     public_suffix (4.0.3)
     rack (2.2.2)
     rainbow (3.0.0)
-    rake (10.5.0)
+    rake (13.0.1)
     rexml (3.2.4)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
@@ -93,7 +93,7 @@ DEPENDENCIES
   bundler (~> 1.17)
   byebug (~> 11.1)
   panda_bot!
-  rake (~> 10.0)
+  rake (~> 13.0)
   rspec (~> 3.0)
   rubocop (~> 0.80)
   rubocop-performance
